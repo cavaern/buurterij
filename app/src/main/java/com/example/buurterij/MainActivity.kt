@@ -17,7 +17,11 @@ import org.osmdroid.config.Configuration
 class MainActivity : AppCompatActivity() {
     private val viewModel: ForagingViewModel by viewModels {
         ForagingViewModelFactory(
-            ForagingSpotRepository(AppDatabase.getInstance(applicationContext).foragingSpotDao()),
+            ForagingSpotRepository(
+                dao = AppDatabase.getInstance(applicationContext).foragingSpotDao(),
+                customPlantTypeDao = AppDatabase.getInstance(applicationContext).customPlantTypeDao(),
+                spotPhotoDao = AppDatabase.getInstance(applicationContext).spotPhotoDao(),
+            ),
         )
     }
 

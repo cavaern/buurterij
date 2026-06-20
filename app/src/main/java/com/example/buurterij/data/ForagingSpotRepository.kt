@@ -1,15 +1,51 @@
 package com.example.buurterij.data
 
+import java.io.File
 import kotlinx.coroutines.flow.Flow
 
-class ForagingSpotRepository(private val dao: ForagingSpotDao) {
+class ForagingSpotRepository(
+    private val dao: ForagingSpotDao,
+    private val customPlantTypeDao: CustomPlantTypeDao,
+    private val spotPhotoDao: SpotPhotoDao,
+) {
     fun getAllSpots(): Flow<List<ForagingSpotEntity>> = dao.getAll()
 
     suspend fun addSpot(lat: Double, lon: Double, plantTypeId: String): Long =
         dao.insert(ForagingSpotEntity(latitude = lat, longitude = lon, plantTypeId = plantTypeId))
 
-    suspend fun deleteSpot(id: Long) = dao.delete(id)
+    suspend fun deleteSpot(id: Long) {
+        spotPhotoDao.getForSpotOnce(id).forEach { photo -> File(photo.filePath).delete() }
+        spotPhotoDao.deleteForSpot(id)
+        dao.delete(id)
+    }
 
     suspend fun markVisited(id: Long, timestamp: Long = System.currentTimeMillis()) =
         dao.updateLastVisited(id, timestamp)
+
+    suspend fun updateNotes(id: Long, notes: String?) = dao.updateNotes(id, notes)
+
+    suspend fun updatePlantType(id: Long, plantTypeId: String) = dao.updatePlantType(id, plantTypeId)
+
+    fun getAllCustomTypes(): Flow<List<CustomPlantTypeEntity>> = customPlantTypeDao.getAll()
+
+    suspend fun addCustomType(
+        dutchName: String,
+        englishName: String,
+        category: PlantCategory,
+        seasonStartMonth: Int,
+        seasonEndMonth: Int,
+    ): Long = customPlantTypeDao.insert(
+        CustomPlantTypeEntity(
+            dutchName = dutchName,
+            englishName = englishName,
+            category = category,
+            seasonStartMonth = seasonStartMonth,
+            seasonEndMonth = seasonEndMonth,
+        ),
+    )
+
+    fun getPhotosForSpot(spotId: Long): Flow<List<SpotPhotoEntity>> = spotPhotoDao.getForSpot(spotId)
+
+    suspend fun addPhoto(spotId: Long, filePath: String): Long =
+        spotPhotoDao.insert(SpotPhotoEntity(spotId = spotId, filePath = filePath))
 }

@@ -18,4 +18,10 @@ interface ForagingSpotDao {
 
     @Query("UPDATE foraging_spots SET lastVisitedAt = :timestamp WHERE id = :spotId")
     suspend fun updateLastVisited(spotId: Long, timestamp: Long)
+
+    @Query("UPDATE foraging_spots SET notes = :notes WHERE id = :spotId")
+    suspend fun updateNotes(spotId: Long, notes: String?)
+
+    @Query("UPDATE foraging_spots SET plantTypeId = :plantTypeId WHERE id = :spotId")
+    suspend fun updatePlantType(spotId: Long, plantTypeId: String)
 }

@@ -11,12 +11,15 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.buurterij.data.isInSeason
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 private val NETHERLANDS_CENTER = GeoPoint(52.1326, 5.2913)
 private const val INITIAL_ZOOM = 7.0
@@ -25,6 +28,8 @@ private const val INITIAL_ZOOM = 7.0
 fun MapViewContainer(
     modifier: Modifier = Modifier,
     spots: List<SpotUiModel>,
+    hasLocationPermission: Boolean,
+    recenterRequest: Int,
     onMapTap: (GeoPoint) -> Unit,
     onMarkerTap: (SpotUiModel) -> Unit,
 ) {
@@ -41,6 +46,7 @@ fun MapViewContainer(
     }
 
     val markers = remember { mutableMapOf<Long, Marker>() }
+    val locationOverlay = remember { MyLocationNewOverlay(GpsMyLocationProvider(context), mapView) }
 
     LaunchedEffect(mapView) {
         val receiver = object : MapEventsReceiver {
@@ -54,14 +60,36 @@ fun MapViewContainer(
         mapView.overlays.add(0, MapEventsOverlay(receiver))
     }
 
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
+            locationOverlay.enableMyLocation()
+            if (!mapView.overlays.contains(locationOverlay)) {
+                mapView.overlays.add(locationOverlay)
+            }
+        } else {
+            locationOverlay.disableMyLocation()
+            mapView.overlays.remove(locationOverlay)
+        }
+        mapView.invalidate()
+    }
+
+    LaunchedEffect(recenterRequest) {
+        if (recenterRequest > 0) {
+            locationOverlay.myLocation?.let { mapView.controller.animateTo(it) }
+        }
+    }
+
     LaunchedEffect(spots) {
         markers.values.forEach { mapView.overlays.remove(it) }
         markers.clear()
+        val currentMonth = java.time.LocalDate.now().monthValue
         spots.forEach { spot ->
+            val inSeason = spot.plantType.isInSeason(currentMonth)
             val marker = Marker(mapView).apply {
                 position = GeoPoint(spot.latitude, spot.longitude)
                 title = spot.plantType.dutchName
                 snippet = spot.plantType.englishName
+                icon = MarkerIconFactory.categoryMarkerDrawable(context, spot.plantType.category, inSeason)
                 setOnMarkerClickListener { _, _ ->
                     onMarkerTap(spot)
                     true
@@ -84,6 +112,7 @@ fun MapViewContainer(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            locationOverlay.disableMyLocation()
             mapView.onDetach()
         }
     }
