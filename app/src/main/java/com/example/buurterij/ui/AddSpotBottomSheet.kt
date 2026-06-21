@@ -25,6 +25,7 @@ import com.example.buurterij.data.PlantCategory
 import com.example.buurterij.data.PlantType
 import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
+import com.example.buurterij.ui.theme.Cream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,37 +33,46 @@ fun AddSpotBottomSheet(
     groupedTypes: Map<PlantCategory, List<PlantType>>,
     mainLanguage: Language = Language.DUTCH,
     secondaryLanguage: Language? = Language.ENGLISH,
+    filterCategory: PlantCategory? = null,
     onDismiss: () -> Unit,
     onPlantTypeSelected: (PlantType) -> Unit,
 ) {
     val currentMonth = java.time.LocalDate.now().monthValue
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+
+    @Composable
+    fun PlantRow(plant: PlantType) {
+        val inSeason = plant.isInSeason(currentMonth)
+        ListItem(
+            headlineContent = { Text(plant.displayName(mainLanguage, secondaryLanguage)) },
+            trailingContent = {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(if (inSeason) Color(0xFF4CAF50) else Color(0xFFBDBDBD)),
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onPlantTypeSelected(plant) },
+        )
+        HorizontalDivider()
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Cream) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            groupedTypes.forEach { (category, plants) ->
-                item {
-                    Text(
-                        text = category.label(),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 4.dp),
-                    )
-                }
-                items(plants) { plant ->
-                    val inSeason = plant.isInSeason(currentMonth)
-                    ListItem(
-                        headlineContent = { Text(plant.displayName(mainLanguage, secondaryLanguage)) },
-                        trailingContent = {
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .clip(CircleShape)
-                                    .background(if (inSeason) Color(0xFF4CAF50) else Color(0xFFBDBDBD)),
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onPlantTypeSelected(plant) },
-                    )
-                    HorizontalDivider()
+            if (filterCategory != null) {
+                items(groupedTypes[filterCategory].orEmpty()) { plant -> PlantRow(plant) }
+            } else {
+                groupedTypes.forEach { (category, plants) ->
+                    item {
+                        Text(
+                            text = category.label(),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 4.dp),
+                        )
+                    }
+                    items(plants) { plant -> PlantRow(plant) }
                 }
             }
         }

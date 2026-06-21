@@ -34,6 +34,7 @@ import com.example.buurterij.data.PlantType
 import com.example.buurterij.data.isCustomPlantTypeId
 import com.example.buurterij.data.toCustomPlantTypeDbId
 import com.example.buurterij.data.displayName
+import com.example.buurterij.ui.theme.Cream
 
 private fun PlantType.isCustom(): Boolean = id.isCustomPlantTypeId()
 
@@ -74,7 +75,7 @@ fun ManageForageTypesScreen(
     var deleteBlockedType by remember { mutableStateOf<PlantType?>(null) }
 
     val plantBeingEdited = editingType
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Cream) {
         when {
             showAddForm -> {
                 AddForageTypeForm(
