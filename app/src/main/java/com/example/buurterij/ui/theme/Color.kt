@@ -13,3 +13,13 @@ val Moss40 = Color(0xFF5B6E3C)
 val Berry40 = Color(0xFF8C3F54)
 val Nut40 = Color(0xFF7A5230)
 val Flower40 = Color(0xFF8C4A89)
+
+val Teal80 = Color(0xFFA8D8D0)
+val Teal40 = Color(0xFF2E7D74)
+val Mushroom80 = Color(0xFFE8C9A0)
+val Mushroom40 = Color(0xFFA0622E)
+val Seed80 = Color(0xFFF0DA8C)
+val Seed40 = Color(0xFFB8943C)
+
+val Cream = Color(0xFFFAF3E6)
+val CreamOutline = Color(0xFFD8CBAE)
