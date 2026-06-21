@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.example.buurterij.R
+import com.example.buurterij.data.LanguagePreferences
 import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,10 +37,15 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     val spots by viewModel.spots.collectAsState()
     val groupedTypes by viewModel.allPlantTypes.collectAsState()
 
+    val languagePreferences = remember { LanguagePreferences(context) }
+    var mainLanguage by remember { mutableStateOf(languagePreferences.mainLanguage) }
+    var secondaryLanguage by remember { mutableStateOf(languagePreferences.secondaryLanguage) }
+
     var pendingTapLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var selectedSpot by remember { mutableStateOf<SpotUiModel?>(null) }
     var changeTypeForSpot by remember { mutableStateOf<SpotUiModel?>(null) }
     var showManageTypes by remember { mutableStateOf(false) }
+    var showLanguageSettings by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
     var hasLocationPermission by remember {
@@ -76,6 +82,13 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
                                 showManageTypes = true
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text("Display languages") },
+                            onClick = {
+                                showMenu = false
+                                showLanguageSettings = true
+                            },
+                        )
                     }
                 },
             )
@@ -95,6 +108,8 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
             spots = spots,
             hasLocationPermission = hasLocationPermission,
             recenterRequest = recenterRequest,
+            mainLanguage = mainLanguage,
+            secondaryLanguage = secondaryLanguage,
             onMapTap = { pendingTapLocation = it },
             onMarkerTap = { selectedSpot = it },
         )
@@ -103,6 +118,8 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     pendingTapLocation?.let { location ->
         AddSpotBottomSheet(
             groupedTypes = groupedTypes,
+            mainLanguage = mainLanguage,
+            secondaryLanguage = secondaryLanguage,
             onDismiss = { pendingTapLocation = null },
             onPlantTypeSelected = { plantType ->
                 viewModel.addSpot(location.latitude, location.longitude, plantType.id)
@@ -114,6 +131,8 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     changeTypeForSpot?.let { spot ->
         AddSpotBottomSheet(
             groupedTypes = groupedTypes,
+            mainLanguage = mainLanguage,
+            secondaryLanguage = secondaryLanguage,
             onDismiss = { changeTypeForSpot = null },
             onPlantTypeSelected = { plantType ->
                 viewModel.updatePlantType(spot.id, plantType.id)
@@ -127,6 +146,8 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
         SpotDetailBottomSheet(
             spot = spot,
             photos = photos,
+            mainLanguage = mainLanguage,
+            secondaryLanguage = secondaryLanguage,
             onDismiss = { selectedSpot = null },
             onMarkVisited = {
                 viewModel.markVisited(it.id)
@@ -148,9 +169,26 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     if (showManageTypes) {
         ManageForageTypesScreen(
             groupedTypes = groupedTypes,
+            mainLanguage = mainLanguage,
+            secondaryLanguage = secondaryLanguage,
             onDismiss = { showManageTypes = false },
             onAddType = { dutchName, englishName, category, start, end ->
                 viewModel.addCustomType(dutchName, englishName, category, start, end)
+            },
+        )
+    }
+
+    if (showLanguageSettings) {
+        LanguageSettingsScreen(
+            initialMain = mainLanguage,
+            initialSecondary = secondaryLanguage,
+            onDismiss = { showLanguageSettings = false },
+            onSave = { main, secondary ->
+                mainLanguage = main
+                secondaryLanguage = secondary
+                languagePreferences.mainLanguage = main
+                languagePreferences.secondaryLanguage = secondary
+                showLanguageSettings = false
             },
         )
     }

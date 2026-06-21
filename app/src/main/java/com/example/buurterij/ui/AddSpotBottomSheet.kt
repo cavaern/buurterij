@@ -20,14 +20,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.buurterij.data.Language
 import com.example.buurterij.data.PlantCategory
 import com.example.buurterij.data.PlantType
+import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSpotBottomSheet(
     groupedTypes: Map<PlantCategory, List<PlantType>>,
+    mainLanguage: Language = Language.DUTCH,
+    secondaryLanguage: Language? = Language.ENGLISH,
     onDismiss: () -> Unit,
     onPlantTypeSelected: (PlantType) -> Unit,
 ) {
@@ -45,8 +49,7 @@ fun AddSpotBottomSheet(
                 items(plants) { plant ->
                     val inSeason = plant.isInSeason(currentMonth)
                     ListItem(
-                        headlineContent = { Text(plant.dutchName) },
-                        supportingContent = { Text(plant.englishName) },
+                        headlineContent = { Text(plant.displayName(mainLanguage, secondaryLanguage)) },
                         trailingContent = {
                             Box(
                                 modifier = Modifier
