@@ -12,6 +12,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.buurterij.data.isInSeason
+import kotlinx.coroutines.delay
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -32,6 +33,7 @@ fun MapViewContainer(
     recenterRequest: Int,
     onMapTap: (GeoPoint) -> Unit,
     onMarkerTap: (SpotUiModel) -> Unit,
+    onMyLocationChanged: (GeoPoint?) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -76,6 +78,17 @@ fun MapViewContainer(
     LaunchedEffect(recenterRequest) {
         if (recenterRequest > 0) {
             locationOverlay.myLocation?.let { mapView.controller.animateTo(it) }
+        }
+    }
+
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
+            while (true) {
+                onMyLocationChanged(locationOverlay.myLocation)
+                delay(1000)
+            }
+        } else {
+            onMyLocationChanged(null)
         }
     }
 
