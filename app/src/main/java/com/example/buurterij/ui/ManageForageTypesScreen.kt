@@ -33,11 +33,11 @@ import com.example.buurterij.data.PlantCategory
 import com.example.buurterij.data.PlantType
 import com.example.buurterij.data.isCustomPlantTypeId
 import com.example.buurterij.data.toCustomPlantTypeDbId
+import com.example.buurterij.data.displayName
 
 private fun PlantType.isCustom(): Boolean = id.isCustomPlantTypeId()
 
 private fun PlantType.customId(): Long? = id.toCustomPlantTypeDbId()
-import com.example.buurterij.data.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +46,16 @@ fun ManageForageTypesScreen(
     mainLanguage: Language = Language.DUTCH,
     secondaryLanguage: Language? = Language.ENGLISH,
     onDismiss: () -> Unit,
-    onAddType: (dutchName: String, englishName: String, category: PlantCategory, seasonStart: Int, seasonEnd: Int) -> Unit,
+    onAddType: (
+        dutchName: String,
+        englishName: String,
+        category: PlantCategory,
+        seasonStart: Int,
+        seasonEnd: Int,
+        germanName: String,
+        frenchName: String,
+        latinName: String,
+    ) -> Unit,
     onUpdateType: (
         id: Long,
         dutchName: String,
@@ -54,6 +63,9 @@ fun ManageForageTypesScreen(
         category: PlantCategory,
         seasonStart: Int,
         seasonEnd: Int,
+        germanName: String,
+        frenchName: String,
+        latinName: String,
     ) -> Unit,
     onDeleteType: (id: Long, onBlocked: () -> Unit) -> Unit,
 ) {
@@ -68,8 +80,8 @@ fun ManageForageTypesScreen(
                 AddForageTypeForm(
                     title = "New forage type",
                     onCancel = { showAddForm = false },
-                    onSubmit = { dutchName, englishName, category, start, end ->
-                        onAddType(dutchName, englishName, category, start, end)
+                    onSubmit = { dutchName, englishName, category, start, end, germanName, frenchName, latinName ->
+                        onAddType(dutchName, englishName, category, start, end, germanName, frenchName, latinName)
                         showAddForm = false
                     },
                 )
@@ -83,10 +95,13 @@ fun ManageForageTypesScreen(
                     initialCategory = plant.category,
                     initialSeasonStart = plant.seasonStartMonth,
                     initialSeasonEnd = plant.seasonEndMonth,
+                    initialGermanName = plant.germanName,
+                    initialFrenchName = plant.frenchName,
+                    initialLatinName = plant.latinName,
                     onCancel = { editingType = null },
-                    onSubmit = { dutchName, englishName, category, start, end ->
+                    onSubmit = { dutchName, englishName, category, start, end, germanName, frenchName, latinName ->
                         plant.customId()?.let { id ->
-                            onUpdateType(id, dutchName, englishName, category, start, end)
+                            onUpdateType(id, dutchName, englishName, category, start, end, germanName, frenchName, latinName)
                         }
                         editingType = null
                     },
@@ -161,19 +176,34 @@ fun ManageForageTypesScreen(
 @Composable
 private fun AddForageTypeForm(
     onCancel: () -> Unit,
-    onSubmit: (dutchName: String, englishName: String, category: PlantCategory, seasonStart: Int, seasonEnd: Int) -> Unit,
+    onSubmit: (
+        dutchName: String,
+        englishName: String,
+        category: PlantCategory,
+        seasonStart: Int,
+        seasonEnd: Int,
+        germanName: String,
+        frenchName: String,
+        latinName: String,
+    ) -> Unit,
     title: String = "New forage type",
     initialDutchName: String = "",
     initialEnglishName: String = "",
     initialCategory: PlantCategory = PlantCategory.BERRY,
     initialSeasonStart: Int = 1,
     initialSeasonEnd: Int = 12,
+    initialGermanName: String = "",
+    initialFrenchName: String = "",
+    initialLatinName: String = "",
 ) {
     var dutchName by remember { mutableStateOf(initialDutchName) }
     var englishName by remember { mutableStateOf(initialEnglishName) }
     var category by remember { mutableStateOf(initialCategory) }
     var seasonStart by remember { mutableStateOf(initialSeasonStart) }
     var seasonEnd by remember { mutableStateOf(initialSeasonEnd) }
+    var germanName by remember { mutableStateOf(initialGermanName) }
+    var frenchName by remember { mutableStateOf(initialFrenchName) }
+    var latinName by remember { mutableStateOf(initialLatinName) }
 
     Column(
         modifier = Modifier
@@ -193,6 +223,24 @@ private fun AddForageTypeForm(
             value = englishName,
             onValueChange = { englishName = it },
             label = { Text("English name") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = germanName,
+            onValueChange = { germanName = it },
+            label = { Text("German name (optional)") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = frenchName,
+            onValueChange = { frenchName = it },
+            label = { Text("French name (optional)") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = latinName,
+            onValueChange = { latinName = it },
+            label = { Text("Latin name (optional)") },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -220,7 +268,9 @@ private fun AddForageTypeForm(
         )
 
         Button(
-            onClick = { onSubmit(dutchName, englishName, category, seasonStart, seasonEnd) },
+            onClick = {
+                onSubmit(dutchName, englishName, category, seasonStart, seasonEnd, germanName, frenchName, latinName)
+            },
             enabled = dutchName.isNotBlank() && englishName.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {

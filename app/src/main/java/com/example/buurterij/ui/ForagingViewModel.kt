@@ -77,9 +77,14 @@ class ForagingViewModel(private val repository: ForagingSpotRepository) : ViewMo
         category: PlantCategory,
         seasonStartMonth: Int,
         seasonEndMonth: Int,
+        germanName: String = "",
+        frenchName: String = "",
+        latinName: String = "",
     ) {
         viewModelScope.launch {
-            repository.addCustomType(dutchName, englishName, category, seasonStartMonth, seasonEndMonth)
+            repository.addCustomType(
+                dutchName, englishName, category, seasonStartMonth, seasonEndMonth, germanName, frenchName, latinName,
+            )
         }
     }
 
@@ -90,9 +95,15 @@ class ForagingViewModel(private val repository: ForagingSpotRepository) : ViewMo
         category: PlantCategory,
         seasonStartMonth: Int,
         seasonEndMonth: Int,
+        germanName: String = "",
+        frenchName: String = "",
+        latinName: String = "",
     ) {
         viewModelScope.launch {
-            repository.updateCustomType(id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth)
+            repository.updateCustomType(
+                id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth,
+                germanName, frenchName, latinName,
+            )
         }
     }
 

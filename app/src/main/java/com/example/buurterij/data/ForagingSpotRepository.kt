@@ -34,6 +34,9 @@ class ForagingSpotRepository(
         category: PlantCategory,
         seasonStartMonth: Int,
         seasonEndMonth: Int,
+        germanName: String = "",
+        frenchName: String = "",
+        latinName: String = "",
     ): Long = customPlantTypeDao.insert(
         CustomPlantTypeEntity(
             dutchName = dutchName,
@@ -41,6 +44,9 @@ class ForagingSpotRepository(
             category = category,
             seasonStartMonth = seasonStartMonth,
             seasonEndMonth = seasonEndMonth,
+            germanName = germanName,
+            frenchName = frenchName,
+            latinName = latinName,
         ),
     )
 
@@ -51,7 +57,12 @@ class ForagingSpotRepository(
         category: PlantCategory,
         seasonStartMonth: Int,
         seasonEndMonth: Int,
-    ) = customPlantTypeDao.update(id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth)
+        germanName: String = "",
+        frenchName: String = "",
+        latinName: String = "",
+    ) = customPlantTypeDao.update(
+        id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth, germanName, frenchName, latinName,
+    )
 
     /**
      * Deletes the custom type with the given [id], unless at least one spot still references it.
