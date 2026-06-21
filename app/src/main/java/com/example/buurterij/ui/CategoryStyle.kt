@@ -33,6 +33,17 @@ fun PlantCategory.markerDrawableRes(): Int = when (this) {
     PlantCategory.SEED -> R.drawable.marker_seeds
 }
 
+@DrawableRes
+fun PlantCategory.petalDrawableRes(): Int = when (this) {
+    PlantCategory.BERRY -> R.drawable.petal_berry
+    PlantCategory.HERB -> R.drawable.petal_herb
+    PlantCategory.NUT -> R.drawable.petal_nut
+    PlantCategory.FLOWER -> R.drawable.petal_flower
+    PlantCategory.MUSHROOM -> R.drawable.petal_mushroom
+    PlantCategory.MARKET_STALL -> R.drawable.petal_market_stall
+    PlantCategory.SEED -> R.drawable.petal_seed
+}
+
 fun PlantCategory.themeColor(): Color = when (this) {
     PlantCategory.BERRY -> Berry40
     PlantCategory.HERB -> ForestGreen40
