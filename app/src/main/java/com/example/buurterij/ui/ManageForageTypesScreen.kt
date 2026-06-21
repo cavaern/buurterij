@@ -25,13 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.buurterij.data.Language
 import com.example.buurterij.data.PlantCategory
 import com.example.buurterij.data.PlantType
+import com.example.buurterij.data.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageForageTypesScreen(
     groupedTypes: Map<PlantCategory, List<PlantType>>,
+    mainLanguage: Language = Language.DUTCH,
+    secondaryLanguage: Language? = Language.ENGLISH,
     onDismiss: () -> Unit,
     onAddType: (dutchName: String, englishName: String, category: PlantCategory, seasonStart: Int, seasonEnd: Int) -> Unit,
 ) {
@@ -68,8 +72,7 @@ fun ManageForageTypesScreen(
                     }
                     items(plants) { plant ->
                         ListItem(
-                            headlineContent = { Text(plant.dutchName) },
-                            supportingContent = { Text(plant.englishName) },
+                            headlineContent = { Text(plant.displayName(mainLanguage, secondaryLanguage)) },
                         )
                         HorizontalDivider()
                     }

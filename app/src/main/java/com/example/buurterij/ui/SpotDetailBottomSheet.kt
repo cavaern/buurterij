@@ -29,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.buurterij.data.Language
 import com.example.buurterij.data.SpotPhotoEntity
+import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
 import java.io.File
 import java.time.Instant
@@ -48,6 +50,8 @@ private val monthNames = (1..12).map {
 fun SpotDetailBottomSheet(
     spot: SpotUiModel,
     photos: List<SpotPhotoEntity>,
+    mainLanguage: Language = Language.DUTCH,
+    secondaryLanguage: Language? = Language.ENGLISH,
     onDismiss: () -> Unit,
     onMarkVisited: (SpotUiModel) -> Unit,
     onDelete: (SpotUiModel) -> Unit,
@@ -81,9 +85,12 @@ fun SpotDetailBottomSheet(
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = plantType.dutchName, style = MaterialTheme.typography.headlineSmall)
             Text(
-                text = "${plantType.englishName} · ${plantType.category.label()}",
+                text = plantType.displayName(mainLanguage, secondaryLanguage),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = plantType.category.label(),
                 style = MaterialTheme.typography.bodyMedium,
             )
 
