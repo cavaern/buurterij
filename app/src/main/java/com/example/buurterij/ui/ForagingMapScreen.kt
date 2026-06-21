@@ -189,11 +189,13 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
             mainLanguage = mainLanguage,
             secondaryLanguage = secondaryLanguage,
             onDismiss = { showManageTypes = false },
-            onAddType = { dutchName, englishName, category, start, end ->
-                viewModel.addCustomType(dutchName, englishName, category, start, end)
+            onAddType = { dutchName, englishName, category, start, end, germanName, frenchName, latinName ->
+                viewModel.addCustomType(dutchName, englishName, category, start, end, germanName, frenchName, latinName)
             },
-            onUpdateType = { id, dutchName, englishName, category, start, end ->
-                viewModel.updateCustomType(id, dutchName, englishName, category, start, end)
+            onUpdateType = { id, dutchName, englishName, category, start, end, germanName, frenchName, latinName ->
+                viewModel.updateCustomType(
+                    id, dutchName, englishName, category, start, end, germanName, frenchName, latinName,
+                )
             },
             onDeleteType = { id, onBlocked ->
                 viewModel.deleteCustomType(id, onBlocked)

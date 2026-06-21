@@ -96,7 +96,6 @@ fun MapViewContainer(
         }
     }
 
-    LaunchedEffect(spots) {
     LaunchedEffect(spots, mainLanguage, secondaryLanguage) {
         markers.values.forEach { mapView.overlays.remove(it) }
         markers.clear()

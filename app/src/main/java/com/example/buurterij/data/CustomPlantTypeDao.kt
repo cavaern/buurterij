@@ -15,7 +15,8 @@ interface CustomPlantTypeDao {
 
     @Query(
         "UPDATE custom_plant_types SET dutchName = :dutchName, englishName = :englishName, " +
-            "category = :category, seasonStartMonth = :seasonStartMonth, seasonEndMonth = :seasonEndMonth " +
+            "category = :category, seasonStartMonth = :seasonStartMonth, seasonEndMonth = :seasonEndMonth, " +
+            "germanName = :germanName, frenchName = :frenchName, latinName = :latinName " +
             "WHERE id = :id",
     )
     suspend fun update(
@@ -25,6 +26,9 @@ interface CustomPlantTypeDao {
         category: PlantCategory,
         seasonStartMonth: Int,
         seasonEndMonth: Int,
+        germanName: String,
+        frenchName: String,
+        latinName: String,
     )
 
     @Query("DELETE FROM custom_plant_types WHERE id = :id")
