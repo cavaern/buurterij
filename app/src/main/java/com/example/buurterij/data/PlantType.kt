@@ -1,6 +1,6 @@
 package com.example.buurterij.data
 
-enum class PlantCategory { BERRY, HERB, NUT, FLOWER, MUSHROOM }
+enum class PlantCategory { BERRY, HERB, NUT, FLOWER, MUSHROOM, SEED }
 
 data class PlantType(
     val id: String,
@@ -47,6 +47,9 @@ object PlantCatalog {
         PlantType("cantharel", "Cantharel", "Chanterelle", PlantCategory.MUSHROOM, 6, 11),
         PlantType("gewone-zwavelkop", "Honingzwam", "Honey fungus", PlantCategory.MUSHROOM, 9, 11),
         PlantType("parasolzwam", "Parasolzwam", "Parasol mushroom", PlantCategory.MUSHROOM, 7, 10),
+        PlantType("klaproos", "Klaproos", "Poppy", PlantCategory.SEED, 7, 9),
+        PlantType("zonnebloem", "Zonnebloem", "Sunflower", PlantCategory.SEED, 8, 10),
+        PlantType("framboos", "Framboos", "Raspberry (cuttings)", PlantCategory.SEED, 11, 2),
     )
 
     fun byId(id: String): PlantType? = all.find { it.id == id }
