@@ -1,6 +1,6 @@
 package com.example.buurterij.data
 
-enum class PlantCategory { BERRY, HERB, NUT, FLOWER, MUSHROOM }
+enum class PlantCategory { BERRY, HERB, NUT, FLOWER, MUSHROOM, SEED, MARKET_STALL }
 
 enum class Language(val label: String) {
     DUTCH("Dutch"),
@@ -50,33 +50,37 @@ fun PlantType.displayName(main: Language, secondary: Language? = null): String {
 
 object PlantCatalog {
     val all: List<PlantType> = listOf(
-        PlantType("braam", "Braam", "Blackberry", PlantCategory.BERRY, 8, 9, "Brombeere", "Mûre", "Rubus fruticosus"),
-        PlantType("vlier", "Vlier", "Elderberry", PlantCategory.BERRY, 8, 9, "Holunder", "Sureau noir", "Sambucus nigra"),
-        PlantType("sleedoorn", "Sleedoorn", "Blackthorn (sloe)", PlantCategory.BERRY, 10, 12, "Schlehe", "Prunellier", "Prunus spinosa"),
-        PlantType("lijsterbes", "Lijsterbes", "Rowan", PlantCategory.BERRY, 8, 10, "Eberesche", "Sorbier des oiseleurs", "Sorbus aucuparia"),
-        PlantType("duindoorn", "Duindoorn", "Sea buckthorn", PlantCategory.BERRY, 9, 11, "Sanddorn", "Argousier", "Hippophae rhamnoides"),
-        PlantType("hondsroos", "Hondsroos", "Dog rose (rosehip)", PlantCategory.BERRY, 9, 11, "Hundsrose", "Églantier", "Rosa canina"),
-        PlantType("bosbes", "Bosbes", "Bilberry", PlantCategory.BERRY, 7, 8, "Heidelbeere", "Myrtille", "Vaccinium myrtillus"),
-        PlantType("meidoorn", "Meidoorn", "Hawthorn", PlantCategory.BERRY, 9, 11, "Weißdorn", "Aubépine", "Crataegus monogyna"),
-        PlantType("brandnetel", "Brandnetel", "Stinging nettle", PlantCategory.HERB, 3, 6, "Brennnessel", "Ortie dioïque", "Urtica dioica"),
-        PlantType("daslook", "Daslook", "Wild garlic", PlantCategory.HERB, 3, 5, "Bärlauch", "Ail des ours", "Allium ursinum"),
-        PlantType("paardenbloem", "Paardenbloem", "Dandelion", PlantCategory.HERB, 4, 9, "Löwenzahn", "Pissenlit", "Taraxacum officinale"),
-        PlantType("zevenblad", "Zevenblad", "Ground elder", PlantCategory.HERB, 4, 7, "Giersch", "Égopode podagraire", "Aegopodium podagraria"),
-        PlantType("veldzuring", "Veldzuring", "Sorrel", PlantCategory.HERB, 4, 8, "Wiesen-Sauerampfer", "Oseille des prés", "Rumex acetosa"),
-        PlantType("look-zonder-look", "Look-zonder-look", "Garlic mustard", PlantCategory.HERB, 3, 6, "Knoblauchsrauke", "Alliaire officinale", "Alliaria petiolata"),
-        PlantType("wilde-kervel", "Wilde kervel", "Wild chervil", PlantCategory.HERB, 4, 6, "Wiesenkerbel", "Cerfeuil sauvage", "Anthriscus sylvestris"),
-        PlantType("hazelnoot", "Hazelnoot", "Hazelnut", PlantCategory.NUT, 9, 10, "Haselnuss", "Noisette", "Corylus avellana"),
-        PlantType("walnoot", "Walnoot", "Walnut", PlantCategory.NUT, 9, 10, "Walnuss", "Noix", "Juglans regia"),
-        PlantType("tamme-kastanje", "Tamme kastanje", "Sweet chestnut", PlantCategory.NUT, 9, 11, "Esskastanie", "Châtaigne", "Castanea sativa"),
-        PlantType("beukennoot", "Beukennoot", "Beechnut", PlantCategory.NUT, 9, 10, "Buchecker", "Faîne", "Fagus sylvatica"),
-        PlantType("vlierbloesem", "Vlierbloesem", "Elderflower", PlantCategory.FLOWER, 5, 6, "Holunderblüte", "Fleur de sureau", "Sambucus nigra"),
-        PlantType("kamille", "Kamille", "Chamomile", PlantCategory.FLOWER, 6, 8, "Kamille", "Camomille", "Matricaria chamomilla"),
-        PlantType("klaver", "Klaver", "Clover", PlantCategory.FLOWER, 5, 9, "Klee", "Trèfle", "Trifolium repens"),
-        PlantType("madeliefje", "Madeliefje", "Daisy", PlantCategory.FLOWER, 3, 10, "Gänseblümchen", "Pâquerette", "Bellis perennis"),
-        PlantType("eekhoorntjesbrood", "Eekhoorntjesbrood", "Porcini", PlantCategory.MUSHROOM, 8, 11, "Steinpilz", "Cèpe de Bordeaux", "Boletus edulis"),
-        PlantType("cantharel", "Cantharel", "Chanterelle", PlantCategory.MUSHROOM, 6, 11, "Pfifferling", "Girolle", "Cantharellus cibarius"),
-        PlantType("gewone-zwavelkop", "Honingzwam", "Honey fungus", PlantCategory.MUSHROOM, 9, 11, "Hallimasch", "Armillaire couleur de miel", "Armillaria mellea"),
-        PlantType("parasolzwam", "Parasolzwam", "Parasol mushroom", PlantCategory.MUSHROOM, 7, 10, "Parasolpilz", "Coulemelle", "Macrolepiota procera"),
+        PlantType("braam", "Braam", "Blackberry", PlantCategory.BERRY, 8, 9),
+        PlantType("vlier", "Vlier", "Elderberry", PlantCategory.BERRY, 8, 9),
+        PlantType("sleedoorn", "Sleedoorn", "Blackthorn (sloe)", PlantCategory.BERRY, 10, 12),
+        PlantType("lijsterbes", "Lijsterbes", "Rowan", PlantCategory.BERRY, 8, 10),
+        PlantType("duindoorn", "Duindoorn", "Sea buckthorn", PlantCategory.BERRY, 9, 11),
+        PlantType("hondsroos", "Hondsroos", "Dog rose (rosehip)", PlantCategory.BERRY, 9, 11),
+        PlantType("bosbes", "Bosbes", "Bilberry", PlantCategory.BERRY, 7, 8),
+        PlantType("meidoorn", "Meidoorn", "Hawthorn", PlantCategory.BERRY, 9, 11),
+        PlantType("brandnetel", "Brandnetel", "Stinging nettle", PlantCategory.HERB, 3, 6),
+        PlantType("daslook", "Daslook", "Wild garlic", PlantCategory.HERB, 3, 5),
+        PlantType("paardenbloem", "Paardenbloem", "Dandelion", PlantCategory.HERB, 4, 9),
+        PlantType("zevenblad", "Zevenblad", "Ground elder", PlantCategory.HERB, 4, 7),
+        PlantType("veldzuring", "Veldzuring", "Sorrel", PlantCategory.HERB, 4, 8),
+        PlantType("look-zonder-look", "Look-zonder-look", "Garlic mustard", PlantCategory.HERB, 3, 6),
+        PlantType("wilde-kervel", "Wilde kervel", "Wild chervil", PlantCategory.HERB, 4, 6),
+        PlantType("hazelnoot", "Hazelnoot", "Hazelnut", PlantCategory.NUT, 9, 10),
+        PlantType("walnoot", "Walnoot", "Walnut", PlantCategory.NUT, 9, 10),
+        PlantType("tamme-kastanje", "Tamme kastanje", "Sweet chestnut", PlantCategory.NUT, 9, 11),
+        PlantType("beukennoot", "Beukennoot", "Beechnut", PlantCategory.NUT, 9, 10),
+        PlantType("vlierbloesem", "Vlierbloesem", "Elderflower", PlantCategory.FLOWER, 5, 6),
+        PlantType("kamille", "Kamille", "Chamomile", PlantCategory.FLOWER, 6, 8),
+        PlantType("klaver", "Klaver", "Clover", PlantCategory.FLOWER, 5, 9),
+        PlantType("madeliefje", "Madeliefje", "Daisy", PlantCategory.FLOWER, 3, 10),
+        PlantType("eekhoorntjesbrood", "Eekhoorntjesbrood", "Porcini", PlantCategory.MUSHROOM, 8, 11),
+        PlantType("cantharel", "Cantharel", "Chanterelle", PlantCategory.MUSHROOM, 6, 11),
+        PlantType("gewone-zwavelkop", "Honingzwam", "Honey fungus", PlantCategory.MUSHROOM, 9, 11),
+        PlantType("parasolzwam", "Parasolzwam", "Parasol mushroom", PlantCategory.MUSHROOM, 7, 10),
+        PlantType("marktkraam", "Marktkraam", "Market stall", PlantCategory.MARKET_STALL, 1, 12),
+        PlantType("klaproos", "Klaproos", "Poppy", PlantCategory.SEED, 7, 9),
+        PlantType("zonnebloem", "Zonnebloem", "Sunflower", PlantCategory.SEED, 8, 10),
+        PlantType("framboos", "Framboos", "Raspberry (cuttings)", PlantCategory.SEED, 11, 2),
     )
 
     fun byId(id: String): PlantType? = all.find { it.id == id }

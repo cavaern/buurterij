@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.buurterij.data.Language
 import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
+import kotlinx.coroutines.delay
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -36,6 +37,7 @@ fun MapViewContainer(
     secondaryLanguage: Language? = Language.ENGLISH,
     onMapTap: (GeoPoint) -> Unit,
     onMarkerTap: (SpotUiModel) -> Unit,
+    onMyLocationChanged: (GeoPoint?) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -83,6 +85,18 @@ fun MapViewContainer(
         }
     }
 
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
+            while (true) {
+                onMyLocationChanged(locationOverlay.myLocation)
+                delay(1000)
+            }
+        } else {
+            onMyLocationChanged(null)
+        }
+    }
+
+    LaunchedEffect(spots) {
     LaunchedEffect(spots, mainLanguage, secondaryLanguage) {
         markers.values.forEach { mapView.overlays.remove(it) }
         markers.clear()
