@@ -2,6 +2,14 @@ package com.example.buurterij.data
 
 enum class PlantCategory { BERRY, HERB, NUT, FLOWER, MUSHROOM, SEED, MARKET_STALL }
 
+enum class Language(val label: String) {
+    DUTCH("Dutch"),
+    ENGLISH("English"),
+    GERMAN("German"),
+    FRENCH("French"),
+    LATIN("Latin"),
+}
+
 data class PlantType(
     val id: String,
     val dutchName: String,
@@ -9,6 +17,9 @@ data class PlantType(
     val category: PlantCategory,
     val seasonStartMonth: Int,
     val seasonEndMonth: Int,
+    val germanName: String = "",
+    val frenchName: String = "",
+    val latinName: String = "",
 )
 
 fun PlantType.isInSeason(monthNow: Int): Boolean =
@@ -17,6 +28,25 @@ fun PlantType.isInSeason(monthNow: Int): Boolean =
     } else {
         monthNow >= seasonStartMonth || monthNow <= seasonEndMonth
     }
+
+fun PlantType.nameFor(language: Language): String = when (language) {
+    Language.DUTCH -> dutchName
+    Language.ENGLISH -> englishName
+    Language.GERMAN -> germanName
+    Language.FRENCH -> frenchName
+    Language.LATIN -> latinName
+}
+
+/**
+ * Resolves the name(s) to show for this plant type given the user's chosen main and
+ * optional secondary display languages, e.g. "Brombeere (Braam)" or just "Braam" when
+ * [secondary] is null.
+ */
+fun PlantType.displayName(main: Language, secondary: Language? = null): String {
+    val mainName = nameFor(main).ifBlank { dutchName }
+    val secondaryName = secondary?.let { nameFor(it) }?.takeIf { it.isNotBlank() && it != mainName }
+    return if (secondaryName != null) "$mainName ($secondaryName)" else mainName
+}
 
 object PlantCatalog {
     val all: List<PlantType> = listOf(

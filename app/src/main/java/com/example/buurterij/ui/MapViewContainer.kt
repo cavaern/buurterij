@@ -11,6 +11,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.buurterij.data.Language
+import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
 import kotlinx.coroutines.delay
 import org.osmdroid.events.MapEventsReceiver
@@ -31,6 +33,8 @@ fun MapViewContainer(
     spots: List<SpotUiModel>,
     hasLocationPermission: Boolean,
     recenterRequest: Int,
+    mainLanguage: Language = Language.DUTCH,
+    secondaryLanguage: Language? = Language.ENGLISH,
     onMapTap: (GeoPoint) -> Unit,
     onMarkerTap: (SpotUiModel) -> Unit,
     onMyLocationChanged: (GeoPoint?) -> Unit = {},
@@ -93,6 +97,7 @@ fun MapViewContainer(
     }
 
     LaunchedEffect(spots) {
+    LaunchedEffect(spots, mainLanguage, secondaryLanguage) {
         markers.values.forEach { mapView.overlays.remove(it) }
         markers.clear()
         val currentMonth = java.time.LocalDate.now().monthValue
@@ -100,8 +105,7 @@ fun MapViewContainer(
             val inSeason = spot.plantType.isInSeason(currentMonth)
             val marker = Marker(mapView).apply {
                 position = GeoPoint(spot.latitude, spot.longitude)
-                title = spot.plantType.dutchName
-                snippet = spot.plantType.englishName
+                title = spot.plantType.displayName(mainLanguage, secondaryLanguage)
                 icon = MarkerIconFactory.categoryMarkerDrawable(context, spot.plantType.category, inSeason)
                 setOnMarkerClickListener { _, _ ->
                     onMarkerTap(spot)

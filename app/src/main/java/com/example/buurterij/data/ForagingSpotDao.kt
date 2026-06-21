@@ -24,4 +24,7 @@ interface ForagingSpotDao {
 
     @Query("UPDATE foraging_spots SET plantTypeId = :plantTypeId WHERE id = :spotId")
     suspend fun updatePlantType(spotId: Long, plantTypeId: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM foraging_spots WHERE plantTypeId = :plantTypeId)")
+    suspend fun existsWithPlantType(plantTypeId: String): Boolean
 }
