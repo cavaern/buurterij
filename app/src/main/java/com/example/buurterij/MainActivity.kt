@@ -5,14 +5,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.buurterij.data.AppDatabase
 import com.example.buurterij.data.ForagingSpotRepository
 import com.example.buurterij.ui.ForagingMapScreen
 import com.example.buurterij.ui.ForagingViewModel
 import com.example.buurterij.ui.ForagingViewModelFactory
+import com.example.buurterij.ui.SplashScreen
 import com.example.buurterij.ui.theme.BuurterijTheme
 import java.io.File
+import kotlinx.coroutines.delay
 import org.osmdroid.config.Configuration
+
+private const val SPLASH_DURATION_MS = 2500L
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: ForagingViewModel by viewModels {
@@ -37,7 +46,16 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             BuurterijTheme {
-                ForagingMapScreen(viewModel = viewModel)
+                var showSplash by remember { mutableStateOf(true) }
+                LaunchedEffect(Unit) {
+                    delay(SPLASH_DURATION_MS)
+                    showSplash = false
+                }
+                if (showSplash) {
+                    SplashScreen()
+                } else {
+                    ForagingMapScreen(viewModel = viewModel)
+                }
             }
         }
     }
