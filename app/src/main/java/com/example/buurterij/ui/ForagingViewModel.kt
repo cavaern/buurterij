@@ -83,6 +83,30 @@ class ForagingViewModel(private val repository: ForagingSpotRepository) : ViewMo
         }
     }
 
+    fun updateCustomType(
+        id: Long,
+        dutchName: String,
+        englishName: String,
+        category: PlantCategory,
+        seasonStartMonth: Int,
+        seasonEndMonth: Int,
+    ) {
+        viewModelScope.launch {
+            repository.updateCustomType(id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth)
+        }
+    }
+
+    /**
+     * Deletes the custom type with the given [id]. If any spot still uses it, deletion is
+     * blocked and [onBlocked] is invoked instead so the UI can inform the user.
+     */
+    fun deleteCustomType(id: Long, onBlocked: () -> Unit = {}) {
+        viewModelScope.launch {
+            val deleted = repository.deleteCustomType(id)
+            if (!deleted) onBlocked()
+        }
+    }
+
     fun photosForSpot(spotId: Long): Flow<List<SpotPhotoEntity>> = repository.getPhotosForSpot(spotId)
 
     fun addPhoto(spotId: Long, filePath: String) {
