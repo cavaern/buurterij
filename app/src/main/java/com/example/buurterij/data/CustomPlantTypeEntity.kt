@@ -13,6 +13,9 @@ data class CustomPlantTypeEntity(
     val category: PlantCategory,
     val seasonStartMonth: Int,
     val seasonEndMonth: Int,
+    val germanName: String = "",
+    val frenchName: String = "",
+    val latinName: String = "",
 )
 
 /** Builds the [PlantType.id] used for the custom type with the given database [id]. */
@@ -32,4 +35,7 @@ fun CustomPlantTypeEntity.toPlantType(): PlantType = PlantType(
     category = category,
     seasonStartMonth = seasonStartMonth,
     seasonEndMonth = seasonEndMonth,
+    germanName = germanName,
+    frenchName = frenchName,
+    latinName = latinName,
 )
