@@ -152,6 +152,12 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
             onAddType = { dutchName, englishName, category, start, end ->
                 viewModel.addCustomType(dutchName, englishName, category, start, end)
             },
+            onUpdateType = { id, dutchName, englishName, category, start, end ->
+                viewModel.updateCustomType(id, dutchName, englishName, category, start, end)
+            },
+            onDeleteType = { id, onBlocked ->
+                viewModel.deleteCustomType(id, onBlocked)
+            },
         )
     }
 }

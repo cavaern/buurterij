@@ -44,6 +44,26 @@ class ForagingSpotRepository(
         ),
     )
 
+    suspend fun updateCustomType(
+        id: Long,
+        dutchName: String,
+        englishName: String,
+        category: PlantCategory,
+        seasonStartMonth: Int,
+        seasonEndMonth: Int,
+    ) = customPlantTypeDao.update(id, dutchName, englishName, category, seasonStartMonth, seasonEndMonth)
+
+    /**
+     * Deletes the custom type with the given [id], unless at least one spot still references it.
+     * Returns `true` if the type was deleted, `false` if deletion was blocked because it's in use.
+     */
+    suspend fun deleteCustomType(id: Long): Boolean {
+        val inUse = dao.existsWithPlantType(customPlantTypeId(id))
+        if (inUse) return false
+        customPlantTypeDao.delete(id)
+        return true
+    }
+
     fun getPhotosForSpot(spotId: Long): Flow<List<SpotPhotoEntity>> = spotPhotoDao.getForSpot(spotId)
 
     suspend fun addPhoto(spotId: Long, filePath: String): Long =
