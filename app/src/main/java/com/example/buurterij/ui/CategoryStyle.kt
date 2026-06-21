@@ -10,6 +10,7 @@ fun PlantCategory.label(): String = when (this) {
     PlantCategory.NUT -> "Noten"
     PlantCategory.FLOWER -> "Bloemen"
     PlantCategory.MUSHROOM -> "Paddenstoelen"
+    PlantCategory.SEED -> "Zaden/Stekken"
 }
 
 @DrawableRes
@@ -19,4 +20,5 @@ fun PlantCategory.markerDrawableRes(): Int = when (this) {
     PlantCategory.NUT -> R.drawable.marker_nut
     PlantCategory.FLOWER -> R.drawable.marker_flower
     PlantCategory.MUSHROOM -> R.drawable.marker_mushroom
+    PlantCategory.SEED -> R.drawable.marker_seeds
 }
