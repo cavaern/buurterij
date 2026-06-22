@@ -23,3 +23,6 @@ val Seed40 = Color(0xFFB8943C)
 
 val Cream = Color(0xFFFAF3E6)
 val CreamOutline = Color(0xFFD8CBAE)
+
+val ClusterNeutral = Color(0xFF6B6B5A)
+val DimmedGrey = Color(0xFFBDBDBD)

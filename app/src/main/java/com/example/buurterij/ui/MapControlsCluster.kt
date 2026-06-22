@@ -1,20 +1,29 @@
 package com.example.buurterij.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.buurterij.R
+import com.example.buurterij.ui.theme.Cream
+import com.example.buurterij.ui.theme.CreamOutline
+import com.example.buurterij.ui.theme.ForestGreen40
 
 private val ControlSize = 56.dp
+private val MoreButtonSize = 68.dp
 
 @Composable
 private fun ControlButton(
@@ -40,6 +49,7 @@ fun MapControlsCluster(
     hasPendingLocation: Boolean,
     onCenterOnMe: () -> Unit,
     onAddDiscovery: () -> Unit,
+    onFilterClick: () -> Unit,
 ) {
     if (!hasLocationPermission) return
 
@@ -58,9 +68,9 @@ fun MapControlsCluster(
         )
         ControlButton(
             iconRes = R.drawable.control_filter,
-            contentDescription = "Filter categories",
-            enabled = false,
-            onClick = {},
+            contentDescription = "Filter spots",
+            enabled = true,
+            onClick = onFilterClick,
         )
         ControlButton(
             iconRes = R.drawable.control_search,
@@ -73,6 +83,26 @@ fun MapControlsCluster(
             contentDescription = "Map layers",
             enabled = false,
             onClick = {},
+        )
+    }
+}
+
+@Composable
+fun MoreMenuButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(MoreButtonSize)
+            .clip(CircleShape)
+            .background(Cream)
+            .border(1.dp, CreamOutline, CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_more_vert),
+            contentDescription = "Menu",
+            tint = ForestGreen40,
+            modifier = Modifier.size(32.dp),
         )
     }
 }
