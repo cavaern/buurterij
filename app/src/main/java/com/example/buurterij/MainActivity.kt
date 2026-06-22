@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
                 dao = AppDatabase.getInstance(applicationContext).foragingSpotDao(),
                 customPlantTypeDao = AppDatabase.getInstance(applicationContext).customPlantTypeDao(),
                 spotPhotoDao = AppDatabase.getInstance(applicationContext).spotPhotoDao(),
+                journalEntryDao = AppDatabase.getInstance(applicationContext).journalEntryDao(),
             ),
         )
     }

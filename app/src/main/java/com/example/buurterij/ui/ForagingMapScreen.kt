@@ -4,30 +4,38 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.example.buurterij.R
 import com.example.buurterij.data.LanguagePreferences
 import com.example.buurterij.data.PlantCategory
+import com.example.buurterij.data.displayName
+import com.example.buurterij.data.isInSeason
+import com.example.buurterij.ui.theme.Cream
 import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +57,11 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     var showManageTypes by remember { mutableStateOf(false) }
     var showLanguageSettings by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var showJournal by remember { mutableStateOf(false) }
+    var filterState by remember { mutableStateOf(MapFilterState()) }
+    var isSearchActive by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -69,55 +82,105 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
         }
     }
 
+    val dimmedSpotIds by remember(spots, filterState, isSearchActive, searchQuery, mainLanguage, secondaryLanguage) {
+        derivedStateOf {
+            val currentMonth = java.time.LocalDate.now().monthValue
+            spots.filter { spot ->
+                val inSeason = spot.plantType.isInSeason(currentMonth)
+                val matchesFilter = filterState.matches(spot, inSeason)
+                val matchesSearch = !isSearchActive || searchQuery.isBlank() ||
+                    spot.plantType.displayName(mainLanguage, secondaryLanguage)
+                        .contains(searchQuery, ignoreCase = true)
+                !(matchesFilter && matchesSearch)
+            }.map { it.id }.toSet()
+        }
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("buurterij") },
-                actions = {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(painterResource(R.drawable.ic_more_vert), contentDescription = "Menu")
-                    }
-                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                        DropdownMenuItem(
-                            text = { Text("Manage forage types") },
-                            onClick = {
-                                showMenu = false
-                                showManageTypes = true
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Display languages") },
-                            onClick = {
-                                showMenu = false
-                                showLanguageSettings = true
-                            },
-                        )
-                    }
-                },
-            )
-        },
         floatingActionButton = {
             MapControlsCluster(
                 hasLocationPermission = hasLocationPermission,
                 hasPendingLocation = currentLocation != null,
+                isSearchActive = isSearchActive,
                 onCenterOnMe = { recenterRequest++ },
                 onAddDiscovery = { currentLocation?.let { pendingRadialLocation = it } },
+                onFilterClick = { showFilterSheet = true },
+                onSearchClick = {
+                    isSearchActive = !isSearchActive
+                    if (!isSearchActive) searchQuery = ""
+                },
+                onJournalClick = { showJournal = true },
             )
         },
     ) { innerPadding ->
-        MapViewContainer(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            spots = spots,
-            hasLocationPermission = hasLocationPermission,
-            recenterRequest = recenterRequest,
-            mainLanguage = mainLanguage,
-            secondaryLanguage = secondaryLanguage,
-            onMapTap = { pendingRadialLocation = it },
-            onMarkerTap = { selectedSpot = it },
-            onMyLocationChanged = { currentLocation = it },
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            MapViewContainer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                spots = spots,
+                dimmedSpotIds = dimmedSpotIds,
+                hasLocationPermission = hasLocationPermission,
+                recenterRequest = recenterRequest,
+                mainLanguage = mainLanguage,
+                secondaryLanguage = secondaryLanguage,
+                onMapTap = { pendingRadialLocation = it },
+                onMarkerTap = { selectedSpot = it },
+                onMyLocationChanged = { currentLocation = it },
+            )
+
+            if (isSearchActive) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search spots by name") },
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            isSearchActive = false
+                            searchQuery = ""
+                        }) {
+                            Text("✕")
+                        }
+                    },
+                    shape = RoundedCornerShape(50),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Cream,
+                        unfocusedContainerColor = Cream,
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
+                        .padding(start = 16.dp, top = 16.dp, end = 88.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .padding(16.dp),
+            ) {
+                MoreMenuButton(onClick = { showMenu = true })
+                DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Manage forage types") },
+                        onClick = {
+                            showMenu = false
+                            showManageTypes = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Display languages") },
+                        onClick = {
+                            showMenu = false
+                            showLanguageSettings = true
+                        },
+                    )
+                }
+            }
+        }
     }
 
     RadialCategoryPicker(
@@ -218,6 +281,25 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
                 languagePreferences.secondaryLanguage = secondary
                 showLanguageSettings = false
             },
+        )
+    }
+
+    if (showFilterSheet) {
+        MapFilterSheet(
+            filterState = filterState,
+            onFilterStateChange = { filterState = it },
+            onDismiss = { showFilterSheet = false },
+        )
+    }
+
+    if (showJournal) {
+        val journalEntries by viewModel.journalEntries.collectAsState()
+        JournalSheet(
+            entries = journalEntries,
+            onDismiss = { showJournal = false },
+            onAddEntry = { title, content -> viewModel.addJournalEntry(title, content) },
+            onUpdateEntry = { id, title, content -> viewModel.updateJournalEntry(id, title, content) },
+            onDeleteEntry = { id -> viewModel.deleteJournalEntry(id) },
         )
     }
 }
