@@ -7,6 +7,7 @@ class ForagingSpotRepository(
     private val dao: ForagingSpotDao,
     private val customPlantTypeDao: CustomPlantTypeDao,
     private val spotPhotoDao: SpotPhotoDao,
+    private val journalEntryDao: JournalEntryDao,
 ) {
     fun getAllSpots(): Flow<List<ForagingSpotEntity>> = dao.getAll()
 
@@ -79,4 +80,14 @@ class ForagingSpotRepository(
 
     suspend fun addPhoto(spotId: Long, filePath: String): Long =
         spotPhotoDao.insert(SpotPhotoEntity(spotId = spotId, filePath = filePath))
+
+    fun getAllJournalEntries(): Flow<List<JournalEntryEntity>> = journalEntryDao.getAll()
+
+    suspend fun addJournalEntry(title: String, content: String): Long =
+        journalEntryDao.insert(JournalEntryEntity(title = title, content = content))
+
+    suspend fun updateJournalEntry(id: Long, title: String, content: String) =
+        journalEntryDao.update(id, title, content, System.currentTimeMillis())
+
+    suspend fun deleteJournalEntry(id: Long) = journalEntryDao.delete(id)
 }

@@ -3,6 +3,7 @@ package com.example.buurterij.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buurterij.data.ForagingSpotRepository
+import com.example.buurterij.data.JournalEntryEntity
 import com.example.buurterij.data.PlantCatalog
 import com.example.buurterij.data.PlantCategory
 import com.example.buurterij.data.PlantType
@@ -122,5 +123,20 @@ class ForagingViewModel(private val repository: ForagingSpotRepository) : ViewMo
 
     fun addPhoto(spotId: Long, filePath: String) {
         viewModelScope.launch { repository.addPhoto(spotId, filePath) }
+    }
+
+    val journalEntries: StateFlow<List<JournalEntryEntity>> = repository.getAllJournalEntries()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addJournalEntry(title: String, content: String) {
+        viewModelScope.launch { repository.addJournalEntry(title, content) }
+    }
+
+    fun updateJournalEntry(id: Long, title: String, content: String) {
+        viewModelScope.launch { repository.updateJournalEntry(id, title, content) }
+    }
+
+    fun deleteJournalEntry(id: Long) {
+        viewModelScope.launch { repository.deleteJournalEntry(id) }
     }
 }

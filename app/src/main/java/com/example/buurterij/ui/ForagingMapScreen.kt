@@ -6,11 +6,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.buurterij.data.LanguagePreferences
 import com.example.buurterij.data.PlantCategory
+import com.example.buurterij.data.displayName
 import com.example.buurterij.data.isInSeason
+import com.example.buurterij.ui.theme.Cream
 import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +58,10 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
     var showLanguageSettings by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showFilterSheet by remember { mutableStateOf(false) }
+    var showJournal by remember { mutableStateOf(false) }
     var filterState by remember { mutableStateOf(MapFilterState()) }
+    var isSearchActive by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -72,12 +82,16 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
         }
     }
 
-    val dimmedSpotIds by remember(spots, filterState, mainLanguage, secondaryLanguage) {
+    val dimmedSpotIds by remember(spots, filterState, isSearchActive, searchQuery, mainLanguage, secondaryLanguage) {
         derivedStateOf {
             val currentMonth = java.time.LocalDate.now().monthValue
             spots.filter { spot ->
                 val inSeason = spot.plantType.isInSeason(currentMonth)
-                !filterState.matches(spot, inSeason, mainLanguage, secondaryLanguage)
+                val matchesFilter = filterState.matches(spot, inSeason)
+                val matchesSearch = !isSearchActive || searchQuery.isBlank() ||
+                    spot.plantType.displayName(mainLanguage, secondaryLanguage)
+                        .contains(searchQuery, ignoreCase = true)
+                !(matchesFilter && matchesSearch)
             }.map { it.id }.toSet()
         }
     }
@@ -87,9 +101,15 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
             MapControlsCluster(
                 hasLocationPermission = hasLocationPermission,
                 hasPendingLocation = currentLocation != null,
+                isSearchActive = isSearchActive,
                 onCenterOnMe = { recenterRequest++ },
                 onAddDiscovery = { currentLocation?.let { pendingRadialLocation = it } },
                 onFilterClick = { showFilterSheet = true },
+                onSearchClick = {
+                    isSearchActive = !isSearchActive
+                    if (!isSearchActive) searchQuery = ""
+                },
+                onJournalClick = { showJournal = true },
             )
         },
     ) { innerPadding ->
@@ -108,6 +128,33 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
                 onMarkerTap = { selectedSpot = it },
                 onMyLocationChanged = { currentLocation = it },
             )
+
+            if (isSearchActive) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search spots by name") },
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            isSearchActive = false
+                            searchQuery = ""
+                        }) {
+                            Text("✕")
+                        }
+                    },
+                    shape = RoundedCornerShape(50),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Cream,
+                        unfocusedContainerColor = Cream,
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
+                        .padding(start = 16.dp, top = 16.dp, end = 88.dp)
+                        .fillMaxWidth(),
+                )
+            }
 
             Box(
                 modifier = Modifier
@@ -242,6 +289,17 @@ fun ForagingMapScreen(viewModel: ForagingViewModel) {
             filterState = filterState,
             onFilterStateChange = { filterState = it },
             onDismiss = { showFilterSheet = false },
+        )
+    }
+
+    if (showJournal) {
+        val journalEntries by viewModel.journalEntries.collectAsState()
+        JournalSheet(
+            entries = journalEntries,
+            onDismiss = { showJournal = false },
+            onAddEntry = { title, content -> viewModel.addJournalEntry(title, content) },
+            onUpdateEntry = { id, title, content -> viewModel.updateJournalEntry(id, title, content) },
+            onDeleteEntry = { id -> viewModel.deleteJournalEntry(id) },
         )
     }
 }

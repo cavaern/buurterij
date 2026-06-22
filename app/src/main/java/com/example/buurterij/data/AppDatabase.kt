@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [ForagingSpotEntity::class, CustomPlantTypeEntity::class, SpotPhotoEntity::class],
-    version = 3,
+    entities = [ForagingSpotEntity::class, CustomPlantTypeEntity::class, SpotPhotoEntity::class, JournalEntryEntity::class],
+    version = 4,
     exportSchema = false,
 )
 @TypeConverters(PlantCategoryConverter::class)
@@ -16,6 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun foragingSpotDao(): ForagingSpotDao
     abstract fun customPlantTypeDao(): CustomPlantTypeDao
     abstract fun spotPhotoDao(): SpotPhotoDao
+    abstract fun journalEntryDao(): JournalEntryDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

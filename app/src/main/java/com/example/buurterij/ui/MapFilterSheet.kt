@@ -12,7 +12,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -86,16 +85,6 @@ fun MapFilterSheet(
                     )
                 }
             }
-
-            OutlinedTextField(
-                value = filterState.searchQuery,
-                onValueChange = { onFilterStateChange(filterState.copy(searchQuery = it)) },
-                label = { Text("Search by name") },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 24.dp),
-            )
         }
     }
 }

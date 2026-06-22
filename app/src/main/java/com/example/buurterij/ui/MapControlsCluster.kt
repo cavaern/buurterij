@@ -23,13 +23,13 @@ import com.example.buurterij.ui.theme.CreamOutline
 import com.example.buurterij.ui.theme.ForestGreen40
 
 private val ControlSize = 56.dp
-private val MoreButtonSize = 68.dp
 
 @Composable
 private fun ControlButton(
     iconRes: Int,
     contentDescription: String,
     enabled: Boolean,
+    active: Boolean = false,
     onClick: () -> Unit,
 ) {
     Image(
@@ -38,6 +38,13 @@ private fun ControlButton(
         modifier = Modifier
             .size(ControlSize)
             .clip(CircleShape)
+            .then(
+                if (active) {
+                    Modifier.border(3.dp, ForestGreen40, CircleShape)
+                } else {
+                    Modifier
+                },
+            )
             .alpha(if (enabled) 1f else 0.4f)
             .clickable(enabled = enabled, onClick = onClick),
     )
@@ -47,9 +54,12 @@ private fun ControlButton(
 fun MapControlsCluster(
     hasLocationPermission: Boolean,
     hasPendingLocation: Boolean,
+    isSearchActive: Boolean,
     onCenterOnMe: () -> Unit,
     onAddDiscovery: () -> Unit,
     onFilterClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onJournalClick: () -> Unit,
 ) {
     if (!hasLocationPermission) return
 
@@ -74,15 +84,16 @@ fun MapControlsCluster(
         )
         ControlButton(
             iconRes = R.drawable.control_search,
-            contentDescription = "Search places",
-            enabled = false,
-            onClick = {},
+            contentDescription = "Search spots",
+            enabled = true,
+            active = isSearchActive,
+            onClick = onSearchClick,
         )
         ControlButton(
-            iconRes = R.drawable.control_layers,
-            contentDescription = "Map layers",
-            enabled = false,
-            onClick = {},
+            iconRes = R.drawable.control_journal,
+            contentDescription = "Journal",
+            enabled = true,
+            onClick = onJournalClick,
         )
     }
 }
@@ -91,7 +102,7 @@ fun MapControlsCluster(
 fun MoreMenuButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(MoreButtonSize)
+            .size(ControlSize)
             .clip(CircleShape)
             .background(Cream)
             .border(1.dp, CreamOutline, CircleShape)
@@ -102,7 +113,7 @@ fun MoreMenuButton(onClick: () -> Unit) {
             painter = painterResource(R.drawable.ic_more_vert),
             contentDescription = "Menu",
             tint = ForestGreen40,
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(28.dp),
         )
     }
 }
